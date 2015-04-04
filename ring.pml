@@ -7,8 +7,8 @@ April 8, 2015
 
 //Change these values to make the program run faster or slower
 //They indicate the max and minimum number of processes allowed in our ring
-#define NMIN 1
-#define NMAX 8
+#define NMIN 4
+#define NMAX 4
 
 
 #define NOT_SET 255
@@ -22,8 +22,12 @@ byte N = NMAX;
 //Or whether we're passing on which leader was found
 chan Msg[NMAX] = [1] of {bit, byte};
 
+//Array storing the ID for each process
+byte idVals[NMAX];
+
 //We use this to verify that all processes agree on the leader
 byte globalLeader = NOT_SET;
+byte leaderPID = NOT_SET;
 
 //We use this to verify that all processes terminate
 byte numDone = 0;
@@ -38,12 +42,61 @@ active proctype starter()
     :: N > NMIN -> {N--}
     :: true -> {break}
   od;
-
-  byte i = 0;
+  
+  
+  byte i;
+  byte j;
+  
+  //Initialize our array of ID values in order
+  i = 0;
   do
-    :: i < N -> {run RingMember(i); i++ }
+    :: i < N -> {idVals[i] = i; i++ }
     :: else -> {break;}
   od;
+  
+  //Non-deterministically shuffle our array of process IDs
+  //Performing at most N^2 swaps
+  byte numSwaps = 0;
+  do
+    :: numSwaps < N*N -> {
+      i = 0;
+      j = 0;
+      byte counter = 0;
+      do
+	:: counter < N-1 -> {i++; counter++}
+	:: break
+      od;
+      counter = 0;
+      do
+	:: counter < N-1 -> {j++; counter++}
+	:: break
+      od;
+      byte tmp = idVals[i];
+      idVals[i] = idVals[j];
+      idVals[j] = tmp;
+      numSwaps++
+    }
+    :: {break}
+  od;
+
+  //Create our ring-voting processes
+  i = 0;
+  do
+    :: i < N -> {run RingMember(idVals[i]); i++ }
+    :: else -> {break}
+  od;
+  
+  /*
+  //Print our result when the output has finished
+  do
+    :: numDone == N -> 
+    { 
+      printf("%d processes, leader had ID %d and _pid %d\n", N, globalLeader, leaderPID ); 
+      break 
+      
+    }
+    :: else -> skip
+  od */
 
 }
 
@@ -52,6 +105,8 @@ proctype RingMember(byte id) {
   byte msg;
   bool msgType;
   byte foundLeader = NOT_SET;
+  
+  printf("Starting process %d with id %d\n", _pid, id);
   
   Msg[(id + 1) % N] ! VOTE, id;
   
@@ -74,6 +129,8 @@ proctype RingMember(byte id) {
 	  :: msgType == VOTE && msg == id -> 
 	    {
 	      Msg[(id + 1) % N] ! FOUND_LEADER, id;
+	      //Set the winning pid to our pid, used for printing
+	      leaderPID = _pid;
 	    }
 	  //Did the process before us find the leader?
 	  //If so, we store it
