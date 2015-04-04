@@ -9,14 +9,14 @@ April 8, 2015
 
 #define NOT_SET 255
 
-//#define VOTE 0
-//#define FOUND_LEADER 1
+#define VOTE 0
+#define FOUND_LEADER 1
 
 //byte N = 1;
 
 //First bit denotes whether we're sending our vote for leader 
 //Or whether we're passing on which leader was found
-chan Msg[N] = [1] of {byte}//{bit, byte};
+chan Msg[N] = [1] of {bit, byte};
 
 //We use this to verify that all processes agree on the leader
 byte globalLeader = NOT_SET;
@@ -44,7 +44,7 @@ proctype RingMember(byte id) {
   byte foundLeader = NOT_SET;
   
   printf("!! Starting process %d", id);
-  Msg[(id + 1) % N] ! id;
+  Msg[(id + 1) % N] ! VOTE, id;
   //printf("Sending %d %d to %d\n", VOTE, id, (id + 1) % N);  
   
   do
@@ -53,48 +53,54 @@ proctype RingMember(byte id) {
     //:: empty(Msg[id]) -> {printf("DO 1 id %d\n", id); skip;}
     :: 
 	//nempty(Msg[id]) -> {
-	globalLeader == NOT_SET && nempty(Msg[id])  -> {
+	foundLeader == NOT_SET && nempty(Msg[id])  -> {
 	printf("DO 2 id %d\n", id);
-	Msg[id] ? msg ;
+	Msg[id] ? msgType, msg ;
 	printf("Recieved %d %d\n", msgType, msg);
 	if
 	  //Less than our ID? Ignore it.
-	  :: msg < id -> 
+	  :: msgType == VOTE && msg < id -> 
 	    {skip;}
 	  //Greater than us? Pass it along in the chain
-	  :: msg > id ->
+	  :: msgType == VOTE && msg > id ->
 	    {
-	      Msg[(id + 1) % N] ! msg;
+	      Msg[(id + 1) % N] ! VOTE, msg;
 	      //printf("Sending %d %d\n", VOTE, msg)
 	    }
 	  //Is it our ID? Then we are the leader.
 	  //Send the next process in the ring a message saying that we're the leader
-	  :: msg == id -> 
+	  :: msgType == VOTE && msg == id -> 
 	    {
 	      //foundLeader = id;
 	      //printf("Sending %d %d\n", FOUND_LEADER, id);
-	      Msg[(id + 1) % N] ! id;
-	      globalLeader = id
+	      Msg[(id + 1) % N] ! FOUND_LEADER, id;
+	      //globalLeader = id
+	    }
+	  :: msgType == FOUND_LEADER -> 
+	    {
+	      foundLeader = msg;
+	      //printf("Sending %d %d\n", FOUND_LEADER, id);
+	      Msg[(id + 1) % N] ! FOUND_LEADER, msg
 	    }
 
-	fi;
+	fi
       }
       
     //Or, if we got a message telling us who the leader is,
     //store it as the global leader (only used for verification)
     //then exit the loop
-    :: globalLeader != NOT_SET -> //TODO fix
+    :: foundLeader != NOT_SET -> //TODO fix
 	{ 
-	  numDone++; 
+	  //numDone++; 
 	  printf("DO 3 id %d\n", id);
-	  //globalLeader = foundLeader; 
+	  globalLeader = foundLeader; 
 	  break
 	}
   od;
   
   printf("Done in thread %d\n", id);
-  //numDone++;
-  printf("NumDone %d\n", numDone)
+  numDone++;
+  printf("Global leader %d\n", globalLeader)
   
 }
 
@@ -113,6 +119,6 @@ proctype RingMember(byte id) {
 
 ltl allHaltAndAgree { 
     (<>( [] ( (numDone == N)  ) )) 
-     //&& ( globalLeader == NOT_SET U globalLeader == N-1 ) 
-    //&&  ((globalLeader == N-1) -> [](globalLeader == N-1) ) 
+    && ( globalLeader == NOT_SET U globalLeader == N-1 ) 
+    &&  ((globalLeader == N-1) -> [](globalLeader == N-1) ) 
   } 
