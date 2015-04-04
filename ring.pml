@@ -7,7 +7,7 @@ April 8, 2015
 
 //Change these values to make the program run faster or slower
 //They indicate the max and minimum number of processes allowed in our ring
-#define NMIN 4
+#define NMIN 2
 #define NMAX 4
 
 
@@ -22,9 +22,6 @@ byte N = NMAX;
 //Or whether we're passing on which leader was found
 chan Msg[NMAX] = [1] of {bit, byte};
 
-//Array storing the ID for each process
-byte idVals[NMAX];
-
 //We use this to verify that all processes agree on the leader
 byte globalLeader = NOT_SET;
 byte leaderPID = NOT_SET;
@@ -33,8 +30,7 @@ byte leaderPID = NOT_SET;
 byte numDone = 0;
 
 //Loops, starting N processes, giving them id's in order
-//TODO make non-deterministic
-active proctype starter()
+init
 {
   //Non-deterministically choose an N less than our max
   //This unforunately can be quite slow, so we choose a small range
@@ -43,46 +39,29 @@ active proctype starter()
     :: true -> {break}
   od;
   
+  //Array for which IDs have been assiged so far
+  bool idAssigned[NMAX] = false;
   
-  byte i;
-  byte j;
   
-  //Initialize our array of ID values in order
-  i = 0;
-  do
-    :: i < N -> {idVals[i] = i; i++ }
-    :: else -> {break;}
-  od;
-  
-  //Non-deterministically shuffle our array of process IDs
-  //Performing at most N^2 swaps
-  byte numSwaps = 0;
-  do
-    :: numSwaps < N*N -> {
-      i = 0;
-      j = 0;
-      byte counter = 0;
-      do
-	:: counter < N-1 -> {i++; counter++}
-	:: break
-      od;
-      counter = 0;
-      do
-	:: counter < N-1 -> {j++; counter++}
-	:: break
-      od;
-      byte tmp = idVals[i];
-      idVals[i] = idVals[j];
-      idVals[j] = tmp;
-      numSwaps++
-    }
-    :: {break}
-  od;
-
   //Create our ring-voting processes
-  i = 0;
+  //We keep track of the number of IDs we've assigned so far
+  //For each iteration of our outer loop, we non-deterministically skip some
+  //number of indices
+  byte i = 0;
   do
-    :: i < N -> {run RingMember(idVals[i]); i++ }
+    :: i < N -> {
+      byte numSkipped = 0;
+      byte j = 0;
+      do 
+	//Option 1: skip a free value and record that we skipped it
+	:: ( j < N-1 && (!idAssigned[j]) && numSkipped < (N - i - 1)) -> {j++ ; numSkipped++ }
+	//Option 2: start a process with the current value, then break
+	:: !idAssigned[j] -> {idAssigned[j] = true; run RingMember(j); break}
+	//Option 3: skip an already used ID
+	:: idAssigned[j] && j < N-1 -> {j++}
+      od;
+      i++
+    }
     :: else -> {break}
   od;
   
@@ -148,6 +127,9 @@ proctype RingMember(byte id) {
     //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
     :: foundLeader != NOT_SET ->
 	{ 
+	  //Assert that, unless we're the first to set it, we are not changing the leader value
+	  //This is redundant in the deterministic version
+	  assert(globalLeader == NOT_SET || globalLeader == foundLeader );
 	  globalLeader = foundLeader; 
 	  break
 	}
@@ -165,10 +147,15 @@ proctype RingMember(byte id) {
 //
 //We also check that the the leader value is not set 
 //until a process sets it to the correct value
-//and that once the leader has the correct value,
+//and that once the leader has a value,
 //its value never changes
 ltl allHaltAndAgree { 
+    //Eventually all processes halt
     (<>( [] ( (numDone == N)  ) )) 
+    // The leader is not set until it has the correct value
     && ( globalLeader == NOT_SET U globalLeader == N-1 )
+    //Once the leader is set, it is never "un"-set
+    &&  []((globalLeader != NOT_SET) -> [](globalLeader != NOT_SET) ) 
+    // Once the leader has the correct value, it stays correct
     &&  []((globalLeader == N-1) -> [](globalLeader == N-1) ) 
   } 
