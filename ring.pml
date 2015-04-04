@@ -5,18 +5,22 @@ Program Verification Project 2
 April 8, 2015
 */
 
-#define N 4
+//Change these values to make the program run faster or slower
+//They indicate the max and minimum number of processes allowed in our ring
+#define NMIN 1
+#define NMAX 8
+
 
 #define NOT_SET 255
 
 #define VOTE 0
 #define FOUND_LEADER 1
 
-//byte N = 1;
+byte N = NMAX;
 
 //First bit denotes whether we're sending our vote for leader 
 //Or whether we're passing on which leader was found
-chan Msg[N] = [1] of {bit, byte};
+chan Msg[NMAX] = [1] of {bit, byte};
 
 //We use this to verify that all processes agree on the leader
 byte globalLeader = NOT_SET;
@@ -28,6 +32,12 @@ byte numDone = 0;
 //TODO make non-deterministic
 active proctype starter()
 {
+  //Non-deterministically choose an N less than our max
+  //This unforunately can be quite slow, so we choose a small range
+  do
+    :: N > NMIN -> {N--}
+    :: true -> {break}
+  od;
 
   byte i = 0;
   do
@@ -43,20 +53,13 @@ proctype RingMember(byte id) {
   bool msgType;
   byte foundLeader = NOT_SET;
   
-  printf("!! Starting process %d", id);
   Msg[(id + 1) % N] ! VOTE, id;
-  //printf("Sending %d %d to %d\n", VOTE, id, (id + 1) % N);  
   
   do
     //If we have a waiting message, take it from the queue
     //And perform the corresponding action
-    //:: empty(Msg[id]) -> {printf("DO 1 id %d\n", id); skip;}
-    :: 
-	//nempty(Msg[id]) -> {
-	foundLeader == NOT_SET && nempty(Msg[id])  -> {
-	printf("DO 2 id %d\n", id);
+    :: foundLeader == NOT_SET && nempty(Msg[id])  -> {
 	Msg[id] ? msgType, msg ;
-	printf("Recieved %d %d\n", msgType, msg);
 	if
 	  //Less than our ID? Ignore it.
 	  :: msgType == VOTE && msg < id -> 
@@ -65,43 +68,36 @@ proctype RingMember(byte id) {
 	  :: msgType == VOTE && msg > id ->
 	    {
 	      Msg[(id + 1) % N] ! VOTE, msg;
-	      //printf("Sending %d %d\n", VOTE, msg)
 	    }
 	  //Is it our ID? Then we are the leader.
 	  //Send the next process in the ring a message saying that we're the leader
 	  :: msgType == VOTE && msg == id -> 
 	    {
-	      //foundLeader = id;
-	      //printf("Sending %d %d\n", FOUND_LEADER, id);
 	      Msg[(id + 1) % N] ! FOUND_LEADER, id;
-	      //globalLeader = id
 	    }
+	  //Did the process before us find the leader?
+	  //If so, we store it
 	  :: msgType == FOUND_LEADER -> 
 	    {
 	      foundLeader = msg;
-	      //printf("Sending %d %d\n", FOUND_LEADER, id);
 	      Msg[(id + 1) % N] ! FOUND_LEADER, msg
 	    }
 
 	fi
       }
       
-    //Or, if we got a message telling us who the leader is,
-    //store it as the global leader (only used for verification)
-    //then exit the loop
-    :: foundLeader != NOT_SET -> //TODO fix
+    //If we've determined who the leader is, exit the loop
+    //We store our leader in globalLeader, but this does not affect the flow of the program
+    //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
+    :: foundLeader != NOT_SET ->
 	{ 
-	  //numDone++; 
-	  printf("DO 3 id %d\n", id);
 	  globalLeader = foundLeader; 
 	  break
 	}
   od;
   
-  printf("Done in thread %d\n", id);
-  numDone++;
-  printf("Global leader %d\n", globalLeader)
-  
+  //Mark that this process halted
+  numDone++  
 }
 
 //Our verification conditions
@@ -114,9 +110,6 @@ proctype RingMember(byte id) {
 //until a process sets it to the correct value
 //and that once the leader has the correct value,
 //its value never changes
-
-
-
 ltl allHaltAndAgree { 
     (<>( [] ( (numDone == N)  ) )) 
     && ( globalLeader == NOT_SET U globalLeader == N-1 )
