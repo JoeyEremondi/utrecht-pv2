@@ -119,6 +119,6 @@ proctype RingMember(byte id) {
 
 ltl allHaltAndAgree { 
     (<>( [] ( (numDone == N)  ) )) 
-    && ( globalLeader == NOT_SET U globalLeader == N-1 ) 
-    &&  ((globalLeader == N-1) -> [](globalLeader == N-1) ) 
+    && ( globalLeader == NOT_SET U globalLeader == N-1 )
+    &&  []((globalLeader == N-1) -> [](globalLeader == N-1) ) 
   } 
