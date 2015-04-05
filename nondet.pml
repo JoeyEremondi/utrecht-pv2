@@ -55,14 +55,11 @@ init
 }
 
 //Our main procedure
-//Basic idea: Each process non-deterministically decides whether or
-//not to discard a vote for an ID less than its own
-//When a process sees its own ID, it sends a FOUND_LEADER message
-//around the ring. Each process decides that the leader is the first
-//id it sees in a FOUND_LEADER message twice.
-//Because FOUND_LEADER messages are never discarded,
-//the messages never "pass" each other in the ring, so there
-//is a unique first id that each process sees twice
+//Basic idea: Each process starts with a vote for itself
+//then passes along its votes from other processes.
+//The first process to see its own ID returned to it makes itself the leader
+//Setting the global "lock" variable to prevent other leaders from being declared.
+//This is non-deterministic: the scheduling determines which process will see its own ID first
 proctype RingMember(byte id) {
   byte msg;
   bool msgType;
@@ -114,7 +111,7 @@ proctype RingMember(byte id) {
       
     //If we've determined who the leader is, exit the loop
     //We store our leader in globalLeader, but this does not affect the flow of the program
-    //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
+    //Rather, it is used with an assertion to ensure all processes agree on the leader
     :: foundLeader != NOT_SET ->
 	{ 
 	  //Assert that, unless we're the first to set it, we are not changing the leader value
@@ -134,10 +131,10 @@ proctype RingMember(byte id) {
 //We verify this by checking that eventually, 
 //the number of halted processes is always N.
 //
-//We also check that the the leader value is not set 
-//until a process sets it to the correct value
-//and that once the leader has a value,
-//its value never changes
+//We also check that the the leader value is eventually set
+//The verification that all processes agree is done above using assertions
+//This is possible with LTL, but cumbersome, since we have no quantifiers,
+//and would have to re-write the formula every time we changed N
 ltl allHaltAndAgree { 
     //Eventually all processes halt
     (<>( [] ( (numDone == N)  ) )) 
