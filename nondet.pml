@@ -1,7 +1,7 @@
 /*
 Joseph Eremondi
 UU# 4229924
-Program Verification Project 2
+Program Verification Project 2: Extension
 April 8, 2015
 */
 
@@ -73,6 +73,13 @@ init
     :: else -> {break}
   od;
   
+  do
+    :: numDone == N -> {
+      printf("Found leader with PID %d, ID %d, out of %d processes\n", leaderPID, globalLeader, N);
+      break
+    }
+  od;
+  
 
 }
 
@@ -90,6 +97,7 @@ proctype RingMember(byte id) {
   bool msgType;
   byte foundLeader = NOT_SET;
   
+  byte skipsAllowed = 0;
   
   printf("Starting process %d with id %d\n", _pid, id);
   
@@ -101,15 +109,14 @@ proctype RingMember(byte id) {
     :: foundLeader == NOT_SET && nempty(Msg[id])  -> {
 	Msg[id] ? msgType, msg ;
 	if
-	  //Less than our ID? Ignore it or send it on, non-deterministically
-	  :: msgType == VOTE && msg < id -> 
-	    {skip}
-	  :: msgType == VOTE && msg < id ->
-	    {
-	      Msg[(id + 1) % N] ! VOTE, msg;
-	    }
-	  //Greater than us? Pass it along in the chain
-	  :: msgType == VOTE && msg > id ->
+	  //Option 1: If we've skipped less than N times, send our ID
+	  //instead of the one we recieved in the message
+	  :: msgType == VOTE && msg != id && skipsAllowed > 0 -> {
+	      Msg[(id + 1) % N] ! VOTE, id;
+	      skipsAllowed--;
+	  }
+	  //Option 2: If it's not our ID, pass along the message
+	  :: msgType == VOTE && msg != id  ->
 	    {
 	      Msg[(id + 1) % N] ! VOTE, msg;
 	    }
@@ -147,7 +154,7 @@ proctype RingMember(byte id) {
     //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
     :: foundLeader != NOT_SET ->
 	{ 
-	  printf("Proc %d found leader %d, global %d\n", id, foundLeader, globalLeader );
+	  printf("Proc %d found leader %d\n", id, foundLeader, globalLeader );
 	  //Assert that, unless we're the first to set it, we are not changing the leader value
 	  //This is redundant in the deterministic version
 	  assert(globalLeader == NOT_SET || globalLeader == foundLeader );
@@ -157,9 +164,7 @@ proctype RingMember(byte id) {
   od;
   
   //Mark that this process halted
-  printf("Marking done %d\n", id );
   numDone++;
-  printf("Marked done %d\n", id );
 }
 
 //Our verification conditions
