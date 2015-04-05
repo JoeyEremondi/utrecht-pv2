@@ -65,17 +65,6 @@ init
     :: else -> {break}
   od;
   
-  /*
-  //Print our result when the output has finished
-  do
-    :: numDone == N -> 
-    { 
-      printf("%d processes, leader had ID %d and _pid %d\n", N, globalLeader, leaderPID ); 
-      break 
-      
-    }
-    :: else -> skip
-  od */
 
 }
 

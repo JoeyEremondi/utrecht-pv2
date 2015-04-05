@@ -7,7 +7,7 @@ April 8, 2015
 
 //Change these values to make the program run faster or slower
 //They indicate the max and minimum number of processes allowed in our ring
-#define NMIN 2
+#define NMIN 4
 #define NMAX 4
 
 
@@ -24,10 +24,16 @@ chan Msg[NMAX] = [1] of {bit, byte};
 
 //We use this to verify that all processes agree on the leader
 byte globalLeader = NOT_SET;
+
+//Just used for printing, to show that different PID's 
+//don't always get the same ID
 byte leaderPID = NOT_SET;
 
 //We use this to verify that all processes terminate
 byte numDone = 0;
+
+//This serves as a "lock", whichever thread grabs it first becomes the leader
+bool leaderFound = false;
 
 //Loops, starting N processes, giving them id's in order
 init
@@ -41,6 +47,8 @@ init
   
   //Array for which IDs have been assiged so far
   bool idAssigned[NMAX] = false;
+  
+  
   
   
   //Create our ring-voting processes
@@ -65,25 +73,23 @@ init
     :: else -> {break}
   od;
   
-  /*
-  //Print our result when the output has finished
-  do
-    :: numDone == N -> 
-    { 
-      printf("%d processes, leader had ID %d and _pid %d\n", N, globalLeader, leaderPID ); 
-      break 
-      
-    }
-    :: else -> skip
-  od */
 
 }
 
 //Our main procedure
+//Basic idea: Each process non-deterministically decides whether or
+//not to discard a vote for an ID less than its own
+//When a process sees its own ID, it sends a FOUND_LEADER message
+//around the ring. Each process decides that the leader is the first
+//id it sees in a FOUND_LEADER message twice.
+//Because FOUND_LEADER messages are never discarded,
+//the messages never "pass" each other in the ring, so there
+//is a unique first id that each process sees twice
 proctype RingMember(byte id) {
   byte msg;
   bool msgType;
   byte foundLeader = NOT_SET;
+  
   
   printf("Starting process %d with id %d\n", _pid, id);
   
@@ -95,28 +101,42 @@ proctype RingMember(byte id) {
     :: foundLeader == NOT_SET && nempty(Msg[id])  -> {
 	Msg[id] ? msgType, msg ;
 	if
-	  //Less than our ID? Ignore it.
+	  //Less than our ID? Ignore it or send it on, non-deterministically
 	  :: msgType == VOTE && msg < id -> 
-	    {skip;}
+	    {skip}
+	  :: msgType == VOTE && msg < id ->
+	    {
+	      Msg[(id + 1) % N] ! VOTE, msg;
+	    }
 	  //Greater than us? Pass it along in the chain
 	  :: msgType == VOTE && msg > id ->
 	    {
 	      Msg[(id + 1) % N] ! VOTE, msg;
 	    }
-	  //Is it our ID? Then we are the leader.
+	  //Is it our ID? Then we check of another thread has declared itself the leader
+	  //If not, we declare ourselves the leader, and
 	  //Send the next process in the ring a message saying that we're the leader
 	  :: msgType == VOTE && msg == id -> 
-	    {
-	      Msg[(id + 1) % N] ! FOUND_LEADER, id;
+	    atomic{
+	      if
+		:: !leaderFound -> {
+		  leaderFound = true;
+		  Msg[(id + 1) % N] ! FOUND_LEADER, id
+		}
+	        :: else -> {skip}
+	      fi
 	      //Set the winning pid to our pid, used for printing
 	      leaderPID = _pid;
 	    }
-	  //Did the process before us find the leader?
-	  //If so, we store it
+	  //Get a notification of who the leader is
+	  //And if it isn't us, pass it along
 	  :: msgType == FOUND_LEADER -> 
 	    {
 	      foundLeader = msg;
-	      Msg[(id + 1) % N] ! FOUND_LEADER, msg
+	      if
+		:: msg != id -> {Msg[(id + 1) % N] ! FOUND_LEADER, msg}
+		:: else -> {skip}
+	      fi
 	    }
 
 	fi
@@ -127,6 +147,7 @@ proctype RingMember(byte id) {
     //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
     :: foundLeader != NOT_SET ->
 	{ 
+	  printf("Proc %d found leader %d, global %d\n", id, foundLeader, globalLeader );
 	  //Assert that, unless we're the first to set it, we are not changing the leader value
 	  //This is redundant in the deterministic version
 	  assert(globalLeader == NOT_SET || globalLeader == foundLeader );
@@ -136,7 +157,9 @@ proctype RingMember(byte id) {
   od;
   
   //Mark that this process halted
-  numDone++  
+  printf("Marking done %d\n", id );
+  numDone++;
+  printf("Marked done %d\n", id );
 }
 
 //Our verification conditions
@@ -152,10 +175,6 @@ proctype RingMember(byte id) {
 ltl allHaltAndAgree { 
     //Eventually all processes halt
     (<>( [] ( (numDone == N)  ) )) 
-    // The leader is not set until it has the correct value
-    && ( globalLeader == NOT_SET U globalLeader == N-1 )
     //Once the leader is set, it is never "un"-set
     &&  []((globalLeader != NOT_SET) -> [](globalLeader != NOT_SET) ) 
-    // Once the leader has the correct value, it stays correct
-    &&  []((globalLeader == N-1) -> [](globalLeader == N-1) ) 
   } 
