@@ -6,80 +6,50 @@ April 8, 2015
 */
 
 //Change these values to make the program run faster or slower
-//They indicate the max and minimum number of processes allowed in our ring
-#define NMIN 2
-#define NMAX 6
+//The number of processes in our ring
+#define N 7
 
 
-#define NOT_SET 255
+#define NOT_SET (N+1)
 
 #define VOTE 0
 #define FOUND_LEADER 1
 
-byte N = NMAX;
+//byte N = N;
 
 //First bit denotes whether we're sending our vote for leader 
 //Or whether we're passing on which leader was found
-chan Msg[NMAX] = [NMAX] of {bit, byte};
+chan Msg[N] = [1] of {bit, byte};
 
 //We use this to verify that all processes agree on the leader
+//And as a "lock" ensuring that once a process sees itself
+//no other processes think they are the leader
 byte globalLeader = NOT_SET;
-
-//Just used for printing, to show that different PID's 
-//don't always get the same ID
-//byte leaderPID = NOT_SET;
 
 //We use this to verify that all processes terminate
 byte numDone = 0;
 
-//This serves as a "lock", whichever thread grabs it first becomes the leader
-bool leaderFound = false;
 
 //Loops, starting N processes, giving them id's in order
 init
 {
-  //Non-deterministically choose an N less than our max
-  //This unforunately can be quite slow, so we choose a small range
-  do
-    :: N > NMIN -> {N--}
-    :: true -> {break}
-  od;
-  
-  //Array for which IDs have been assiged so far
-  bool idAssigned[NMAX] = false;
-  
-  
-  
+
   
   //Create our ring-voting processes
-  //We keep track of the number of IDs we've assigned so far
-  //For each iteration of our outer loop, we non-deterministically skip some
-  //number of indices
+  //Since our process is non-deterministic, we don't bother assigning different IDs to PIDs
   byte i = 0;
   do
-    :: i < N -> {
-      byte numSkipped = 0;
-      byte j = i;//0;
-      do 
-	//Option 1: skip a free value and record that we skipped it
-	//:: ( j < N-1 && (!idAssigned[j]) && numSkipped < (N - i - 1)) -> {j++ ; numSkipped++ }
-	//Option 2: start a process with the current value, then break
-	:: !idAssigned[j] -> {idAssigned[j] = true; run RingMember(j); break}
-	//Option 3: skip an already used ID
-	//:: idAssigned[j] && j < N-1 -> {j++}
-      od;
-      i++
-    }
+    :: i < N -> { run RingMember(i); i++ }
     :: else -> {break}
   od;
   
-  /*
+  
   do
     :: numDone == N -> {
-      printf("Found leader with PID %d, ID %d, out of %d processes\n", leaderPID, globalLeader, N);
+      printf("Found leader with  ID %d, out of %d processes\n", globalLeader, N);
       break
     }
-  od; */
+  od; 
   
 
 }
@@ -97,11 +67,7 @@ proctype RingMember(byte id) {
   byte msg;
   bool msgType;
   byte foundLeader = NOT_SET;
-  
-  byte skipsAllowed = 1;
-  
-  //printf("Starting process %d with id %d\n", _pid, id);
-  
+      
   Msg[(id + 1) % N] ! VOTE, id;
   
   do
@@ -110,33 +76,27 @@ proctype RingMember(byte id) {
     :: foundLeader == NOT_SET && nempty(Msg[id])  -> {
 	Msg[id] ? msgType, msg ;
 	if
-	  //Option 1: If it's not our ID, pass along the message
+	  //Pass on all votes that aren't for us
+	  //This makes the process non-deterministic: the order the processes run
+	  //determine the order votes are passed on
 	  :: msgType == VOTE && msg != id  ->
 	    {
 	      Msg[(id + 1) % N] ! VOTE, msg
 	    }
-	  //Option 2: If we've skipped less than N times, send our ID
-	  //instead of the one we recieved in the message
-	  :: msgType == VOTE && msg != id && skipsAllowed > 0 -> {
-	      skipsAllowed--;
-	      Msg[(id + 1) % N] ! VOTE, id;
-	      
-	  }
-	  
+ 
 	  //Is it our ID? Then we check of another thread has declared itself the leader
 	  //If not, we declare ourselves the leader, and
 	  //Send the next process in the ring a message saying that we're the leader
 	  :: msgType == VOTE && msg == id -> 
 	    atomic{
 	      if
-		:: !leaderFound -> {
-		  leaderFound = true;
+		:: globalLeader == NOT_SET -> {
+		  globalLeader = id;
 		  Msg[(id + 1) % N] ! FOUND_LEADER, id
 		}
 	        :: else -> {skip}
 	      fi
-	      //Set the winning pid to our pid, used for printing
-	      //leaderPID = _pid;
+
 	    }
 	  //Get a notification of who the leader is
 	  //And if it isn't us, pass it along
@@ -157,9 +117,7 @@ proctype RingMember(byte id) {
     //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
     :: foundLeader != NOT_SET ->
 	{ 
-	  //printf("Proc %d found leader %d\n", id, foundLeader, globalLeader );
 	  //Assert that, unless we're the first to set it, we are not changing the leader value
-	  //This is redundant in the deterministic version
 	  assert(globalLeader == NOT_SET || globalLeader == foundLeader );
 	  globalLeader = foundLeader; 
 	  break
