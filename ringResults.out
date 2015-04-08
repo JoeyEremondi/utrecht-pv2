@@ -1,0 +1,328 @@
+Testing with N=1
+ltl allHaltAndAgree: ((<> ([] ((numDone==1)))) && (((globalLeader==(1+1))) U ((globalLeader==(1-1))))) && ([] ((! ((globalLeader==(1-1)))) || ([] ((globalLeader==(1-1))))))
+
+(Spin Version 6.4.3 -- 16 December 2014)
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	+ (allHaltAndAgree)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness disabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 48 byte, depth reached 51, errors: 0
+       99 states, stored (168 visited)
+       94 states, matched
+      262 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:         0 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.007	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.278	actual memory usage for states
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  128.730	total actual memory usage
+
+
+unreached in init
+	(0 of 27 states)
+unreached in proctype RingMember
+	(0 of 30 states)
+unreached in claim allHaltAndAgree
+	_spin_nvr.tmp:37, state 56, "-end-"
+	(1 of 56 states)
+
+pan: elapsed time 0 seconds
+Testing with N=2
+ltl allHaltAndAgree: ((<> ([] ((numDone==2)))) && (((globalLeader==(2+1))) U ((globalLeader==(2-1))))) && ([] ((! ((globalLeader==(2-1)))) || ([] ((globalLeader==(2-1))))))
+
+(Spin Version 6.4.3 -- 16 December 2014)
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	+ (allHaltAndAgree)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness disabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 64 byte, depth reached 105, errors: 0
+      835 states, stored (1404 visited)
+     1327 states, matched
+     2731 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:         0 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.073	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.278	actual memory usage for states
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  128.730	total actual memory usage
+
+
+unreached in init
+	(0 of 27 states)
+unreached in proctype RingMember
+	(0 of 30 states)
+unreached in claim allHaltAndAgree
+	_spin_nvr.tmp:37, state 56, "-end-"
+	(1 of 56 states)
+
+pan: elapsed time 0 seconds
+Testing with N=3
+ltl allHaltAndAgree: ((<> ([] ((numDone==3)))) && (((globalLeader==(3+1))) U ((globalLeader==(3-1))))) && ([] ((! ((globalLeader==(3-1)))) || ([] ((globalLeader==(3-1))))))
+
+(Spin Version 6.4.3 -- 16 December 2014)
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	+ (allHaltAndAgree)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness disabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 88 byte, depth reached 163, errors: 0
+    10029 states, stored (16537 visited)
+    23561 states, matched
+    40098 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:         2 (resolved)
+
+Stats on memory usage (in Megabytes):
+    1.109	equivalent memory usage for states (stored*(State-vector + overhead))
+    1.060	actual memory usage for states (compression: 95.52%)
+         	state-vector as stored = 83 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  129.511	total actual memory usage
+
+
+unreached in init
+	(0 of 27 states)
+unreached in proctype RingMember
+	(0 of 30 states)
+unreached in claim allHaltAndAgree
+	_spin_nvr.tmp:37, state 56, "-end-"
+	(1 of 56 states)
+
+pan: elapsed time 0.03 seconds
+pan: rate 551233.33 states/second
+Testing with N=4
+ltl allHaltAndAgree: ((<> ([] ((numDone==4)))) && (((globalLeader==(4+1))) U ((globalLeader==(4-1))))) && ([] ((! ((globalLeader==(4-1)))) || ([] ((globalLeader==(4-1))))))
+
+(Spin Version 6.4.3 -- 16 December 2014)
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	+ (allHaltAndAgree)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness disabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 104 byte, depth reached 225, errors: 0
+   160607 states, stored (261334 visited)
+   499781 states, matched
+   761115 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:      1301 (resolved)
+
+Stats on memory usage (in Megabytes):
+   20.218	equivalent memory usage for states (stored*(State-vector + overhead))
+   15.910	actual memory usage for states (compression: 78.69%)
+         	state-vector as stored = 76 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  144.355	total actual memory usage
+
+
+unreached in init
+	(0 of 27 states)
+unreached in proctype RingMember
+	(0 of 30 states)
+unreached in claim allHaltAndAgree
+	_spin_nvr.tmp:37, state 56, "-end-"
+	(1 of 56 states)
+
+pan: elapsed time 0.56 seconds
+pan: rate 466667.86 states/second
+Testing with N=5
+ltl allHaltAndAgree: ((<> ([] ((numDone==5)))) && (((globalLeader==(5+1))) U ((globalLeader==(5-1))))) && ([] ((! ((globalLeader==(5-1)))) || ([] ((globalLeader==(5-1))))))
+Depth=     291 States=    1e+06 Transitions= 3.69e+06 Memory=   185.175	t=     2.99 R=   3e+05
+Depth=     291 States=    2e+06 Transitions=  7.4e+06 Memory=   241.718	t=     6.07 R=   3e+05
+Depth=     291 States=    3e+06 Transitions= 1.11e+07 Memory=   298.261	t=     9.13 R=   3e+05
+Depth=     291 States=    4e+06 Transitions= 1.35e+07 Memory=   359.198	t=       11 R=   4e+05
+Depth=     291 States=    5e+06 Transitions= 1.69e+07 Memory=   472.187	t=     13.9 R=   4e+05
+
+(Spin Version 6.4.3 -- 16 December 2014)
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	+ (allHaltAndAgree)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness disabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 120 byte, depth reached 291, errors: 0
+  3195755 states, stored (5.15749e+06 visited)
+ 12330797 states, matched
+ 17488288 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:    612728 (resolved)
+
+Stats on memory usage (in Megabytes):
+  451.061	equivalent memory usage for states (stored*(State-vector + overhead))
+  361.791	actual memory usage for states (compression: 80.21%)
+         	state-vector as stored = 91 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  490.058	total actual memory usage
+
+
+unreached in init
+	(0 of 27 states)
+unreached in proctype RingMember
+	(0 of 30 states)
+unreached in claim allHaltAndAgree
+	_spin_nvr.tmp:37, state 56, "-end-"
+	(1 of 56 states)
+
+pan: elapsed time 14.3 seconds
+pan: rate 359657.67 states/second
+Testing with N=6
+ltl allHaltAndAgree: ((<> ([] ((numDone==6)))) && (((globalLeader==(6+1))) U ((globalLeader==(6-1))))) && ([] ((! ((globalLeader==(6-1)))) || ([] ((globalLeader==(6-1))))))
+Depth=     361 States=    1e+06 Transitions=  4.4e+06 Memory=   189.667	t=     3.71 R=   3e+05
+Depth=     361 States=    2e+06 Transitions= 8.49e+06 Memory=   250.605	t=     7.09 R=   3e+05
+Depth=     361 States=    3e+06 Transitions= 1.25e+07 Memory=   311.542	t=     10.4 R=   3e+05
+Depth=     361 States=    4e+06 Transitions= 1.68e+07 Memory=   372.480	t=     13.9 R=   3e+05
+Depth=     361 States=    5e+06 Transitions= 2.09e+07 Memory=   433.417	t=     17.3 R=   3e+05
+Depth=     361 States=    6e+06 Transitions= 2.51e+07 Memory=   494.355	t=     20.8 R=   3e+05
+Depth=     361 States=    7e+06 Transitions= 2.93e+07 Memory=   555.390	t=     24.4 R=   3e+05
+Depth=     361 States=    8e+06 Transitions= 3.33e+07 Memory=   616.327	t=     27.7 R=   3e+05
+Depth=     361 States=    9e+06 Transitions= 3.75e+07 Memory=   677.265	t=     31.2 R=   3e+05
+Depth=     361 States=    1e+07 Transitions= 4.17e+07 Memory=   738.202	t=     34.8 R=   3e+05
+Depth=     361 States=  1.1e+07 Transitions= 4.59e+07 Memory=   799.140	t=     38.2 R=   3e+05
+Depth=     361 States=  1.2e+07 Transitions=    5e+07 Memory=   860.077	t=     41.8 R=   3e+05
+Depth=     361 States=  1.3e+07 Transitions= 5.42e+07 Memory=   921.015	t=     45.4 R=   3e+05
+Depth=     361 States=  1.4e+07 Transitions= 5.83e+07 Memory=   981.952	t=     48.8 R=   3e+05
+Depth=     361 States=  1.5e+07 Transitions= 6.25e+07 Memory=  1042.890	t=     52.4 R=   3e+05
+Depth=     361 States=  1.6e+07 Transitions= 6.66e+07 Memory=  1103.827	t=     55.8 R=   3e+05
+Depth=     361 States=  1.7e+07 Transitions= 7.08e+07 Memory=  1164.862	t=     59.3 R=   3e+05
+Depth=     361 States=  1.8e+07 Transitions=  7.5e+07 Memory=  1225.800	t=     62.9 R=   3e+05
+Depth=     361 States=  1.9e+07 Transitions= 7.92e+07 Memory=  1286.737	t=     66.7 R=   3e+05
+Depth=     361 States=    2e+07 Transitions= 8.35e+07 Memory=  1347.772	t=     70.3 R=   3e+05
+Depth=     361 States=  2.1e+07 Transitions= 8.75e+07 Memory=  1408.710	t=     73.7 R=   3e+05
+Depth=     361 States=  2.2e+07 Transitions= 9.19e+07 Memory=  1469.647	t=     77.4 R=   3e+05
+Depth=     361 States=  2.3e+07 Transitions=  9.6e+07 Memory=  1530.585	t=     80.9 R=   3e+05
+Depth=     361 States=  2.4e+07 Transitions=    1e+08 Memory=  1591.620	t=     84.5 R=   3e+05
+Depth=     361 States=  2.5e+07 Transitions= 1.04e+08 Memory=  1652.558	t=     88.2 R=   3e+05
+Depth=     361 States=  2.6e+07 Transitions= 1.09e+08 Memory=  1713.495	t=     91.7 R=   3e+05
+Depth=     361 States=  2.7e+07 Transitions= 1.13e+08 Memory=  1774.433	t=     95.4 R=   3e+05
+Depth=     361 States=  2.8e+07 Transitions= 1.17e+08 Memory=  1835.468	t=     99.1 R=   3e+05
+Depth=     361 States=  2.9e+07 Transitions= 1.21e+08 Memory=  1896.405	t=      103 R=   3e+05
+Depth=     361 States=    3e+07 Transitions= 1.25e+08 Memory=  1957.343	t=      106 R=   3e+05
+Depth=     361 States=  3.1e+07 Transitions=  1.3e+08 Memory=  2018.280	t=      110 R=   3e+05
+Depth=     361 States=  3.2e+07 Transitions= 1.34e+08 Memory=  2079.315	t=      114 R=   3e+05
+Depth=     361 States=  3.3e+07 Transitions= 1.38e+08 Memory=  2140.253	t=      117 R=   3e+05
+Depth=     361 States=  3.4e+07 Transitions= 1.42e+08 Memory=  2201.190	t=      121 R=   3e+05
+pan: resizing hashtable to -w26..  done
+Depth=     361 States=  3.5e+07 Transitions= 1.46e+08 Memory=  2758.210	t=      127 R=   3e+05
+Depth=     361 States=  3.6e+07 Transitions= 1.51e+08 Memory=  2819.147	t=      131 R=   3e+05
+Depth=     361 States=  3.7e+07 Transitions= 1.55e+08 Memory=  2880.183	t=      134 R=   3e+05
+Depth=     361 States=  3.8e+07 Transitions= 1.59e+08 Memory=  2941.120	t=      138 R=   3e+05
+Depth=     361 States=  3.9e+07 Transitions= 1.63e+08 Memory=  3002.058	t=      141 R=   3e+05
+Depth=     361 States=    4e+07 Transitions= 1.67e+08 Memory=  3062.995	t=      145 R=   3e+05
+Depth=     361 States=  4.1e+07 Transitions= 1.71e+08 Memory=  3123.933	t=      148 R=   3e+05
+Depth=     361 States=  4.2e+07 Transitions= 1.76e+08 Memory=  3184.968	t=      152 R=   3e+05
+Depth=     361 States=  4.3e+07 Transitions=  1.8e+08 Memory=  3245.905	t=      155 R=   3e+05
+Depth=     361 States=  4.4e+07 Transitions= 1.84e+08 Memory=  3306.843	t=      159 R=   3e+05
+Depth=     361 States=  4.5e+07 Transitions= 1.88e+08 Memory=  3367.878	t=      163 R=   3e+05
+Depth=     361 States=  4.6e+07 Transitions= 1.93e+08 Memory=  3428.815	t=      166 R=   3e+05
+Depth=     361 States=  4.7e+07 Transitions= 1.97e+08 Memory=  3489.753	t=      170 R=   3e+05
+Depth=     361 States=  4.8e+07 Transitions= 2.01e+08 Memory=  3550.690	t=      173 R=   3e+05
+Depth=     361 States=  4.9e+07 Transitions= 2.05e+08 Memory=  3611.726	t=      177 R=   3e+05
+Depth=     361 States=    5e+07 Transitions= 2.09e+08 Memory=  3672.663	t=      180 R=   3e+05
+Depth=     361 States=  5.1e+07 Transitions= 2.13e+08 Memory=  3733.601	t=      184 R=   3e+05
+Depth=     361 States=  5.2e+07 Transitions= 2.18e+08 Memory=  3794.636	t=      187 R=   3e+05
+Depth=     361 States=  5.3e+07 Transitions= 2.22e+08 Memory=  3855.573	t=      191 R=   3e+05
+Depth=     361 States=  5.4e+07 Transitions= 2.26e+08 Memory=  3916.511	t=      194 R=   3e+05
+Depth=     361 States=  5.5e+07 Transitions=  2.3e+08 Memory=  3977.546	t=      198 R=   3e+05
+Depth=     361 States=  5.6e+07 Transitions= 2.34e+08 Memory=  4038.483	t=      201 R=   3e+05
+Depth=     361 States=  5.7e+07 Transitions= 2.39e+08 Memory=  4099.421	t=      205 R=   3e+05
+Depth=     361 States=  5.8e+07 Transitions= 2.43e+08 Memory=  4160.358	t=      208 R=   3e+05
+Depth=     361 States=  5.9e+07 Transitions= 2.47e+08 Memory=  4221.394	t=      212 R=   3e+05
+Depth=     361 States=    6e+07 Transitions= 2.51e+08 Memory=  4282.331	t=      215 R=   3e+05
+Depth=     361 States=  6.1e+07 Transitions= 2.55e+08 Memory=  4343.269	t=      219 R=   3e+05
+Depth=     361 States=  6.2e+07 Transitions= 2.59e+08 Memory=  4404.206	t=      222 R=   3e+05
+Depth=     361 States=  6.3e+07 Transitions= 2.64e+08 Memory=  4465.144	t=      226 R=   3e+05
+Depth=     361 States=  6.4e+07 Transitions= 2.68e+08 Memory=  4526.179	t=      229 R=   3e+05
+Depth=     361 States=  6.5e+07 Transitions= 2.72e+08 Memory=  4587.116	t=      233 R=   3e+05
+Depth=     361 States=  6.6e+07 Transitions= 2.76e+08 Memory=  4648.054	t=      237 R=   3e+05
+Depth=     361 States=  6.7e+07 Transitions=  2.8e+08 Memory=  4708.991	t=      240 R=   3e+05
+Depth=     361 States=  6.8e+07 Transitions= 2.84e+08 Memory=  4769.929	t=      244 R=   3e+05
+Depth=     361 States=  6.9e+07 Transitions= 2.89e+08 Memory=  4830.964	t=      247 R=   3e+05
+Depth=     361 States=    7e+07 Transitions= 2.93e+08 Memory=  4891.999	t=      251 R=   3e+05
+Depth=     361 States=  7.1e+07 Transitions= 2.97e+08 Memory=  4952.937	t=      254 R=   3e+05
+Depth=     361 States=  7.2e+07 Transitions= 3.01e+08 Memory=  5013.874	t=      258 R=   3e+05
+Depth=     361 States=  7.3e+07 Transitions= 3.06e+08 Memory=  5074.812	t=      262 R=   3e+05
+Depth=     361 States=  7.4e+07 Transitions=  3.1e+08 Memory=  5135.749	t=      266 R=   3e+05
+Depth=     361 States=  7.5e+07 Transitions= 3.14e+08 Memory=  5196.784	t=      269 R=   3e+05
+Depth=     361 States=  7.6e+07 Transitions= 3.16e+08 Memory=  5257.722	t=      271 R=   3e+05
+Depth=     361 States=  7.7e+07 Transitions= 3.18e+08 Memory=  5318.757	t=      273 R=   3e+05
+Depth=     361 States=  7.8e+07 Transitions= 3.21e+08 Memory=  5379.694	t=      275 R=   3e+05
+Depth=     361 States=  7.9e+07 Transitions= 3.23e+08 Memory=  5440.632	t=      277 R=   3e+05
+Depth=     361 States=    8e+07 Transitions= 3.25e+08 Memory=  5501.667	t=      279 R=   3e+05
+Depth=     361 States=  8.1e+07 Transitions= 3.27e+08 Memory=  5562.605	t=      281 R=   3e+05
+Depth=     361 States=  8.2e+07 Transitions= 3.29e+08 Memory=  5623.640	t=      283 R=   3e+05
+Depth=     361 States=  8.3e+07 Transitions= 3.31e+08 Memory=  5684.577	t=      285 R=   3e+05
+Depth=     361 States=  8.4e+07 Transitions= 3.33e+08 Memory=  5745.515	t=      287 R=   3e+05
+Depth=     361 States=  8.5e+07 Transitions= 3.35e+08 Memory=  5806.550	t=      289 R=   3e+05
+Depth=     361 States=  8.6e+07 Transitions= 3.37e+08 Memory=  5867.487	t=      291 R=   3e+05
+Depth=     361 States=  8.7e+07 Transitions=  3.4e+08 Memory=  5928.425	t=      293 R=   3e+05
+Depth=     361 States=  8.8e+07 Transitions= 3.42e+08 Memory=  5989.460	t=      295 R=   3e+05
+Depth=     361 States=  8.9e+07 Transitions= 3.44e+08 Memory=  6050.397	t=      297 R=   3e+05
+Depth=     361 States=    9e+07 Transitions= 3.46e+08 Memory=  6111.335	t=      299 R=   3e+05
+Depth=     361 States=  9.1e+07 Transitions= 3.48e+08 Memory=  6172.370	t=      301 R=   3e+05
+Depth=     361 States=  9.2e+07 Transitions= 3.51e+08 Memory=  6247.858	t=      305 R=   3e+05
+Depth=     361 States=  9.3e+07 Transitions= 3.55e+08 Memory=  6369.733	t=      315 R=   3e+05
+Depth=     361 States=  9.4e+07 Transitions= 3.59e+08 Memory=  6491.608	t=      321 R=   3e+05
+Depth=     361 States=  9.5e+07 Transitions= 3.63e+08 Memory=  6613.581	t=      325 R=   3e+05
+Depth=     361 States=  9.6e+07 Transitions= 3.67e+08 Memory=  6735.456	t=      402 R=   2e+05
+Depth=     361 States=  9.7e+07 Transitions= 3.71e+08 Memory=  6857.331	t=      527 R=   2e+05
+Depth=     361 States=  9.8e+07 Transitions= 3.75e+08 Memory=  6979.206	t=      583 R=   2e+05
+Depth=     361 States=  9.9e+07 Transitions= 3.79e+08 Memory=  7101.179	t=      629 R=   2e+05
+Depth=     361 States=    1e+08 Transitions= 3.83e+08 Memory=  7223.054	t=      691 R=   1e+05
+Depth=     361 States= 1.01e+08 Transitions= 3.87e+08 Memory=  7345.026	t=      900 R=   1e+05
+Depth=     361 States= 1.02e+08 Transitions= 3.91e+08 Memory=  7466.901	t= 1.24e+03 R=   8e+04
+Interrupted
+
+(Spin Version 6.4.3 -- 16 December 2014)
+Warning: Search not completed
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	+ (allHaltAndAgree)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness disabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 136 byte, depth reached 361, errors: 0
+ 56176881 states, stored (1.02057e+08 visited)
+2.8892265e+08 states, matched
+3.9097992e+08 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:  94566153 (resolved)
+
+Stats on memory usage (in Megabytes):
+ 8786.210	equivalent memory usage for states (stored*(State-vector + overhead))
+ 6962.850	actual memory usage for states (compression: 79.25%)
+         	state-vector as stored = 102 byte + 28 byte overhead
+  512.000	memory used for hash table (-w26)
+    0.534	memory used for DFS stack (-m10000)
+    1.452	memory lost to fragmentation
+ 7473.933	total actual memory usage
+
+
+
+pan: elapsed time 1.27e+03 seconds
+pan: rate 80189.567 states/second

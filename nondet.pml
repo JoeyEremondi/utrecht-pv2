@@ -7,7 +7,9 @@ April 8, 2015
 
 //Change these values to make the program run faster or slower
 //The number of processes in our ring
-#define N 7
+#ifndef N
+#define N 5
+#endif
 
 
 #define NOT_SET (N+1)

@@ -5,22 +5,19 @@ Program Verification Project 2
 April 8, 2015
 */
 
-//Change these values to make the program run faster or slower
-//They indicate the max and minimum number of processes allowed in our ring
-#define NMIN 2
-#define NMAX 4
+//The number of processes allowed in our ring
+#ifndef N
+#define N 5
+#endif
 
-
-#define NOT_SET 255
+#define NOT_SET N+1
 
 #define VOTE 0
 #define FOUND_LEADER 1
 
-byte N = NMAX;
-
 //First bit denotes whether we're sending our vote for leader 
 //Or whether we're passing on which leader was found
-chan Msg[NMAX] = [1] of {bit, byte};
+chan Msg[N] = [1] of {bit, byte};
 
 //We use this to verify that all processes agree on the leader
 byte globalLeader = NOT_SET;
@@ -32,15 +29,9 @@ byte numDone = 0;
 //Loops, starting N processes, giving them id's in order
 init
 {
-  //Non-deterministically choose an N less than our max
-  //This unforunately can be quite slow, so we choose a small range
-  do
-    :: N > NMIN -> {N--}
-    :: true -> {break}
-  od;
-  
+
   //Array for which IDs have been assiged so far
-  bool idAssigned[NMAX] = false;
+  bool idAssigned[N] = false;
   
   
   //Create our ring-voting processes
@@ -116,9 +107,6 @@ proctype RingMember(byte id) {
     //Rather, it is used in the LTL formulas to ensure all processes agree on the leader
     :: foundLeader != NOT_SET ->
 	{ 
-	  //Assert that, unless we're the first to set it, we are not changing the leader value
-	  //This is redundant in the deterministic version
-	  assert(globalLeader == NOT_SET || globalLeader == foundLeader );
 	  globalLeader = foundLeader; 
 	  break
 	}
@@ -143,8 +131,6 @@ ltl allHaltAndAgree {
     (<>( [] ( (numDone == N)  ) )) 
     // The leader is not set until it has the correct value
     && ( globalLeader == NOT_SET U globalLeader == N-1 )
-    //Once the leader is set, it is never "un"-set
-    &&  []((globalLeader != NOT_SET) -> [](globalLeader != NOT_SET) ) 
     // Once the leader has the correct value, it stays correct
     &&  []((globalLeader == N-1) -> [](globalLeader == N-1) ) 
   } 
